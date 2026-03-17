@@ -36,8 +36,27 @@
       margin-top: 0;
     }
 
+    .page-shell {
+      max-width: 1700px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .main-column {
+      min-width: 0;
+    }
+
+    .side-column {
+      min-width: 0;
+      position: sticky;
+      top: 20px;
+    }
+
     .container {
-      max-width: 1500px;
+      max-width: 100%;
       margin: auto;
     }
 
@@ -47,13 +66,6 @@
       border-radius: 14px;
       margin-bottom: 20px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-    }
-
-    .hero-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-      gap: 20px;
-      align-items: start;
     }
 
     .grid-2 {
@@ -207,32 +219,6 @@
       line-height: 1.45;
     }
 
-    .image-card {
-      position: sticky;
-      top: 20px;
-    }
-
-    .howto-image-wrap {
-      background: #0b1220;
-      border-radius: 12px;
-      padding: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .howto-image {
-      width: 100%;
-      display: block;
-      border-radius: 10px;
-      background: #111827;
-    }
-
-    .howto-caption {
-      margin-top: 10px;
-      font-size: 0.92rem;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-
     .run-row {
       display: flex;
       gap: 12px;
@@ -242,7 +228,7 @@
 
     .results-grid {
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: 1fr;
       gap: 20px;
       align-items: start;
     }
@@ -305,6 +291,8 @@
       line-height: 1.35;
       margin: 0;
       border: 1px solid var(--border);
+      max-height: 720px;
+      overflow-y: auto;
     }
 
     .copy-row {
@@ -326,18 +314,87 @@
       font-size: 0.85rem;
     }
 
-    @media (max-width: 1200px) {
-      .results-grid {
-        grid-template-columns: 1fr;
-      }
+    .tutorial-shell {
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      overflow: hidden;
     }
 
-    @media (max-width: 1100px) {
-      .hero-layout {
+    .tutorial-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 16px 16px 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tutorial-title {
+      color: var(--accent);
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .tutorial-toggle {
+      margin: 0;
+      padding: 8px 12px;
+      min-width: 92px;
+    }
+
+    .tutorial-body {
+      padding: 16px;
+    }
+
+    .tutorial-collapsed .tutorial-body {
+      display: none;
+    }
+
+    .howto-image-wrap {
+      background: #0b1220;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .howto-image {
+      width: 100%;
+      display: block;
+      border-radius: 10px;
+      background: #111827;
+    }
+
+    .howto-caption {
+      margin-top: 10px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .tutorial-collapsed-note {
+      display: none;
+      padding: 12px 16px 16px 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .tutorial-collapsed .tutorial-collapsed-note {
+      display: block;
+    }
+
+    .section-anchor {
+      scroll-margin-top: 20px;
+    }
+
+    @media (max-width: 1350px) {
+      .page-shell {
         grid-template-columns: 1fr;
       }
-      .image-card {
+
+      .side-column {
         position: static;
+        order: -1;
       }
     }
 
@@ -345,6 +402,7 @@
       .grid-4, .grid-5 {
         grid-template-columns: 1fr 1fr;
       }
+
       .grid-2 {
         grid-template-columns: 1fr;
       }
@@ -360,9 +418,9 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="hero-layout">
-      <div>
+  <div class="page-shell">
+    <div class="main-column">
+      <div class="container">
         <div class="card">
           <h1>TornStatsCompare</h1>
           <div class="intro-sub">
@@ -384,132 +442,145 @@
             Only two rows are supported. If you paste them newest-first, the tool will automatically swap them.
           </div>
         </div>
-      </div>
 
-      <div class="card image-card">
-        <h2>How to Use It</h2>
-        <div class="howto-image-wrap">
-          <img
-            class="howto-image"
-            src="tornstats-howto.png"
-            alt="Guide showing how to copy two stat history rows from TornStats Growth Details and paste them into TornStatsCompare."
-          />
+        <div class="card">
+          <h2>Inputs</h2>
+          <div class="grid-2">
+            <div>
+              <label>Before Stats (STR, DEF, SPD, DEX)</label>
+              <input id="before" value="150722,50491,153003,56420" />
+            </div>
+            <div>
+              <label>After Stats (STR, DEF, SPD, DEX)</label>
+              <input id="after" value="168285,89274,153085,60834" />
+            </div>
+          </div>
+
+          <div class="grid-4">
+            <div>
+              <label>Hours Between Measurements</label>
+              <input id="hours" value="192" />
+            </div>
+            <div>
+              <label>Gym Dots</label>
+              <input id="gym" value="6.0" />
+            </div>
+            <div>
+              <label>Total Modifier</label>
+              <input id="mod" value="1.1" />
+            </div>
+            <div>
+              <label>Inference Happy</label>
+              <input id="inferenceHappy" value="5000" />
+            </div>
+          </div>
+
+          <div class="small">
+            Inference Happy is only used to infer energy split by inversion. It does not directly define the baselines.
+          </div>
         </div>
-        <div class="howto-caption">
-          Copy two rows from <strong>Growth Details</strong> in TornStats, paste them into the quick paste box, then click <strong>Autofill Inputs</strong>.
+
+        <div class="card">
+          <h2>Baselines</h2>
+          <div id="baselines"></div>
+
+          <div class="top-actions">
+            <button onclick="addBaseline()">Add Baseline</button>
+            <button onclick="loadDefaultBaselines()">Reset to Defaults</button>
+          </div>
+
+          <div class="small" style="margin-top: 8px;">
+            Daily energy for each baseline is calculated as: <strong>(xans × 250) + refill (150 if checked) + natural regen</strong>.
+            Active baselines are included in the results. Inactive baselines stay visible for quick toggling.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="run-row">
+            <button onclick="runCalc()">Run Calculation</button>
+            <div class="small">Results are based only on active baselines.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="copy-row">
+            <h2 style="margin: 0;">Text Results</h2>
+            <button class="secondary" onclick="copyTextResults()">Copy Text Results</button>
+          </div>
+          <pre id="output">Run the calculation to see results...</pre>
+        </div>
+
+        <div class="results-grid">
+          <div class="card section-anchor" id="structured-results">
+            <h2>Structured Results</h2>
+
+            <h3>Combined Scores</h3>
+            <div class="table-wrap">
+              <table id="combinedTable">
+                <thead>
+                  <tr>
+                    <th>Baseline</th>
+                    <th>Score</th>
+                    <th>E/Day</th>
+                    <th>Happy</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="4">Run the calculation to see results.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3 style="margin-top: 18px;">Per-Stat Scores</h3>
+            <div class="table-wrap">
+              <table id="perStatTable">
+                <thead>
+                  <tr>
+                    <th>Run the calculation to populate this table.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>No results yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <h2>Inputs</h2>
-      <div class="grid-2">
-        <div>
-          <label>Before Stats (STR, DEF, SPD, DEX)</label>
-          <input id="before" value="150722,50491,153003,56420" />
+    <aside class="side-column">
+      <div id="tutorialShell" class="tutorial-shell">
+        <div class="tutorial-header">
+          <div class="tutorial-title">How to Use It</div>
+          <button id="tutorialToggleBtn" class="secondary tutorial-toggle" onclick="toggleTutorial()">Hide</button>
         </div>
-        <div>
-          <label>After Stats (STR, DEF, SPD, DEX)</label>
-          <input id="after" value="168285,89274,153085,60834" />
-        </div>
-      </div>
 
-      <div class="grid-4">
-        <div>
-          <label>Hours Between Measurements</label>
-          <input id="hours" value="192" />
+        <div class="tutorial-body">
+          <div class="howto-image-wrap">
+            <img
+              class="howto-image"
+              src="tornstats-howto.png"
+              alt="Guide showing how to copy two stat history rows from TornStats Growth Details and paste them into TornStatsCompare."
+            />
+          </div>
+          <div class="howto-caption">
+            Copy two rows from <strong>Growth Details</strong> in TornStats, paste them into the quick paste box, then click <strong>Autofill Inputs</strong>.
+          </div>
         </div>
-        <div>
-          <label>Gym Dots</label>
-          <input id="gym" value="6.0" />
-        </div>
-        <div>
-          <label>Total Modifier</label>
-          <input id="mod" value="1.1" />
-        </div>
-        <div>
-          <label>Inference Happy</label>
-          <input id="inferenceHappy" value="5000" />
+
+        <div class="tutorial-collapsed-note">
+          Tutorial hidden. Click <strong>Show</strong> to bring it back.
         </div>
       </div>
-
-      <div class="small">
-        Inference Happy is only used to infer energy split by inversion. It does not directly define the baselines.
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Baselines</h2>
-      <div id="baselines"></div>
-
-      <div class="top-actions">
-        <button onclick="addBaseline()">Add Baseline</button>
-        <button onclick="loadDefaultBaselines()">Reset to Defaults</button>
-      </div>
-
-      <div class="small" style="margin-top: 8px;">
-        Daily energy for each baseline is calculated as: <strong>(xans × 250) + refill (150 if checked) + natural regen</strong>.
-        Active baselines are included in the results. Inactive baselines stay visible for quick toggling.
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="run-row">
-        <button onclick="runCalc()">Run Calculation</button>
-        <div class="small">Results are based only on active baselines.</div>
-      </div>
-    </div>
-
-    <div class="results-grid">
-      <div class="card">
-        <h2>Structured Results</h2>
-
-        <h3>Combined Scores</h3>
-        <div class="table-wrap">
-          <table id="combinedTable">
-            <thead>
-              <tr>
-                <th>Baseline</th>
-                <th>Score</th>
-                <th>E/Day</th>
-                <th>Happy</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="4">Run the calculation to see results.</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <h3 style="margin-top: 18px;">Per-Stat Scores</h3>
-        <div class="table-wrap">
-          <table id="perStatTable">
-            <thead>
-              <tr>
-                <th>Run the calculation to populate this table.</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>No results yet.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="copy-row">
-          <h2 style="margin: 0;">Text Results</h2>
-          <button class="secondary" onclick="copyTextResults()">Copy Text Results</button>
-        </div>
-        <pre id="output">Run the calculation to see results...</pre>
-      </div>
-    </div>
+    </aside>
   </div>
 
-  <script src="torn_app.js?v=5"></script>
+  <script src="torn_app.js?v=6"></script>
 
   <script>
     let baselineCounter = 0;
+    const TUTORIAL_STORAGE_KEY = "tornstatscompare_tutorial_open";
 
     function parseStats(str) {
       return str.split(",").map(x => parseFloat(x.trim()));
@@ -652,7 +723,6 @@
         const refill = card.querySelector(".baseline-refill").checked;
         const natural = parseFloat(card.querySelector(".baseline-natural").value) || 0;
         const happy = parseFloat(card.querySelector(".baseline-happy").value) || 5000;
-
         return { name, active, xans, refill, natural, happy };
       });
     }
@@ -748,14 +818,17 @@
       const tbody = document.querySelector("#combinedTable tbody");
       tbody.innerHTML = "";
 
-      result.activeBaselines.forEach(b => {
+      const activeBaselines = result.activeBaselines || result.baselines || [];
+      const combinedByBaseline = result.combinedByBaseline || {};
+
+      activeBaselines.forEach(b => {
         const tr = document.createElement("tr");
-        const score = result.combinedByBaseline[b.name];
+        const score = combinedByBaseline[b.name] ?? 0;
         tr.innerHTML = `
           <td>${b.name} ${b.name === result.frontierWinner ? '<span class="pill">Frontier winner</span>' : ''}</td>
           <td class="${scoreClass(score)}">${score.toFixed(6)}</td>
-          <td>${b.ePerDay.toFixed(0)}</td>
-          <td>${b.happy.toFixed(0)}</td>
+          <td>${Number(b.ePerDay || 0).toFixed(0)}</td>
+          <td>${Number(b.happy || 0).toFixed(0)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -763,7 +836,7 @@
       const frontierTr = document.createElement("tr");
       frontierTr.innerHTML = `
         <td><strong>Frontier</strong></td>
-        <td class="${scoreClass(result.frontierCombined)}"><strong>${result.frontierCombined.toFixed(6)}</strong></td>
+        <td class="${scoreClass(result.frontierCombined || 0)}"><strong>${Number(result.frontierCombined || 0).toFixed(6)}</strong></td>
         <td colspan="2">Best active baseline denominator</td>
       `;
       tbody.appendChild(frontierTr);
@@ -771,7 +844,8 @@
 
     function renderPerStatTable(result) {
       const table = document.getElementById("perStatTable");
-      const activeNames = result.activeBaselines.map(b => b.name);
+      const activeBaselines = result.activeBaselines || result.baselines || [];
+      const activeNames = activeBaselines.map(b => b.name);
 
       let thead = `
         <thead>
@@ -788,18 +862,19 @@
       thead += `<th>Frontier</th></tr></thead>`;
 
       let tbody = `<tbody>`;
-      result.perStat.forEach(r => {
+      (result.perStat || []).forEach(r => {
         tbody += `<tr>`;
         tbody += `<td>${r.name}</td>`;
-        tbody += `<td>${r.actual.toFixed(2)}</td>`;
+        tbody += `<td>${Number(r.actual || 0).toFixed(2)}</td>`;
         activeNames.forEach(name => {
-          tbody += `<td>${r.expectedByBaseline[name].toFixed(2)}</td>`;
+          const exp = r.expectedByBaseline?.[name] ?? 0;
+          tbody += `<td>${Number(exp).toFixed(2)}</td>`;
         });
         activeNames.forEach(name => {
-          const score = r.scoreByBaseline[name];
-          tbody += `<td class="${scoreClass(score)}">${score.toFixed(6)}</td>`;
+          const score = r.scoreByBaseline?.[name] ?? 0;
+          tbody += `<td class="${scoreClass(score)}">${Number(score).toFixed(6)}</td>`;
         });
-        tbody += `<td class="${scoreClass(r.frontier)}">${r.frontier.toFixed(6)}</td>`;
+        tbody += `<td class="${scoreClass(r.frontier || 0)}">${Number(r.frontier || 0).toFixed(6)}</td>`;
         tbody += `</tr>`;
       });
       tbody += `</tbody>`;
@@ -808,9 +883,12 @@
     }
 
     function buildTextOutput(result, hours, gym, mod, inferenceHappy) {
-      const split = result.inference.split || [0, 0, 0, 0];
-      const inferredEnergies = result.inference.inferredEnergies || [0, 0, 0, 0];
+      const split = result.inference?.split || result.split || [0, 0, 0, 0];
+      const inferredEnergies = result.inference?.inferredEnergies || [0, 0, 0, 0];
       const names = ["STR", "DEF", "SPD", "DEX"];
+      const activeBaselines = result.activeBaselines || result.baselines || [];
+      const inactiveBaselines = result.inactiveBaselines || [];
+      const combinedByBaseline = result.combinedByBaseline || {};
 
       let text = "";
       text += `Hours between measurements: ${hours.toFixed(6)}\n`;
@@ -819,24 +897,24 @@
       text += `Inference happy: ${inferenceHappy.toFixed(6)}\n\n`;
 
       text += "Active baselines\n";
-      result.activeBaselines.forEach(b => {
-        text += `  ${b.name}: ${b.ePerDay.toFixed(0)} E/day @ ${b.happy.toFixed(0)} happy`;
+      activeBaselines.forEach(b => {
+        text += `  ${b.name}: ${Number(b.ePerDay || 0).toFixed(0)} E/day @ ${Number(b.happy || 0).toFixed(0)} happy`;
         text += ` (xans=${b.xans}, refill=${b.refill ? "yes" : "no"}, natural=${b.natural})\n`;
       });
 
       text += "\nShown but inactive baselines\n";
-      result.inactiveBaselines.forEach(b => {
-        text += `  ${b.name}: ${b.ePerDay.toFixed(0)} E/day @ ${b.happy.toFixed(0)} happy`;
+      inactiveBaselines.forEach(b => {
+        text += `  ${b.name}: ${Number(b.ePerDay || 0).toFixed(0)} E/day @ ${Number(b.happy || 0).toFixed(0)} happy`;
         text += ` (xans=${b.xans}, refill=${b.refill ? "yes" : "no"}, natural=${b.natural})\n`;
       });
 
       text += "\nInferred energy split (neutral inversion)\n";
       split.forEach((v, i) => {
-        text += `  ${names[i].padEnd(4)} ${pad((v * 100).toFixed(3) + "%", 10)}   inferred E: ${inferredEnergies[i].toFixed(3)}\n`;
+        text += `  ${names[i].padEnd(4)} ${pad((v * 100).toFixed(3) + "%", 10)}   inferred E: ${Number(inferredEnergies[i] || 0).toFixed(3)}\n`;
       });
 
       text += "\nPer-stat results\n";
-      const activeNames = result.activeBaselines.map(b => b.name);
+      const activeNames = activeBaselines.map(b => b.name);
 
       text += "Stat     Actual Gain";
       activeNames.forEach(name => {
@@ -847,23 +925,23 @@
       });
       text += "   Frontier\n";
 
-      result.perStat.forEach(r => {
-        text += `${r.name.padEnd(4)} ${pad(r.actual.toFixed(2), 13)}`;
+      (result.perStat || []).forEach(r => {
+        text += `${r.name.padEnd(4)} ${pad(Number(r.actual || 0).toFixed(2), 13)}`;
         activeNames.forEach(name => {
-          text += `${pad(r.expectedByBaseline[name].toFixed(2), 16)}`;
+          text += `${pad(Number(r.expectedByBaseline?.[name] || 0).toFixed(2), 16)}`;
         });
         activeNames.forEach(name => {
-          text += `${pad(r.scoreByBaseline[name].toFixed(6), 14)}`;
+          text += `${pad(Number(r.scoreByBaseline?.[name] || 0).toFixed(6), 14)}`;
         });
-        text += `${pad(r.frontier.toFixed(6), 11)}\n`;
+        text += `${pad(Number(r.frontier || 0).toFixed(6), 11)}\n`;
       });
 
       text += "\nCombined scores\n";
-      result.activeBaselines.forEach(b => {
-        text += `  ${b.name}: ${result.combinedByBaseline[b.name].toFixed(6)}\n`;
+      activeBaselines.forEach(b => {
+        text += `  ${b.name}: ${Number(combinedByBaseline[b.name] || 0).toFixed(6)}\n`;
       });
-      text += `  Frontier: ${result.frontierCombined.toFixed(6)}\n`;
-      text += `  Frontier winner: ${result.frontierWinner}\n`;
+      text += `  Frontier: ${Number(result.frontierCombined || 0).toFixed(6)}\n`;
+      text += `  Frontier winner: ${result.frontierWinner || "N/A"}\n`;
 
       return text;
     }
@@ -878,6 +956,37 @@
       }
     }
 
+    function setTutorialState(isOpen) {
+      const shell = document.getElementById("tutorialShell");
+      const btn = document.getElementById("tutorialToggleBtn");
+
+      if (isOpen) {
+        shell.classList.remove("tutorial-collapsed");
+        btn.textContent = "Hide";
+      } else {
+        shell.classList.add("tutorial-collapsed");
+        btn.textContent = "Show";
+      }
+
+      localStorage.setItem(TUTORIAL_STORAGE_KEY, isOpen ? "open" : "closed");
+    }
+
+    function getTutorialState() {
+      const saved = localStorage.getItem(TUTORIAL_STORAGE_KEY);
+      if (saved === "closed") return false;
+      return true;
+    }
+
+    function toggleTutorial() {
+      const shell = document.getElementById("tutorialShell");
+      const isCurrentlyOpen = !shell.classList.contains("tutorial-collapsed");
+      setTutorialState(!isCurrentlyOpen);
+    }
+
+    function initTutorialState() {
+      setTutorialState(getTutorialState());
+    }
+
     function runCalc() {
       const before = parseStats(document.getElementById("before").value);
       const after = parseStats(document.getElementById("after").value);
@@ -889,12 +998,13 @@
 
       try {
         const result = calculateTornEfficiency(before, after, hours, gym, mod, baselines, inferenceHappy);
-
         renderCombinedTable(result);
         renderPerStatTable(result);
 
         const text = buildTextOutput(result, hours, gym, mod, inferenceHappy);
         document.getElementById("output").textContent = text;
+
+        document.getElementById("structured-results").scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (err) {
         document.getElementById("output").textContent =
           "Error: " + (err && err.stack ? err.stack : err);
@@ -908,6 +1018,7 @@
     }
 
     loadDefaultBaselines();
+    initTutorialState();
   </script>
 </body>
 </html>
