@@ -91,7 +91,6 @@ function normalizeBaselines(baselines) {
     const refill = !!b.refill;
     const natural = Math.max(0, Number(b.natural || 0));
     const happy = Math.max(1, Number(b.happy || 5000));
-
     const ePerDay = xans * 250 + (refill ? 150 : 0) + natural;
 
     if (ePerDay <= 0) {
@@ -147,8 +146,9 @@ function calculateTornEfficiency(
   const split = inference.weights;
 
   const perStat = [];
-  const combinedActual = { total: 0 };
   const combinedExpected = {};
+  let combinedActual = 0;
+
   normalizedBaselines.forEach(b => {
     combinedExpected[b.name] = 0;
   });
@@ -162,18 +162,15 @@ function calculateTornEfficiency(
 
     const expectedByBaseline = {};
     const scoreByBaseline = {};
-
     let bestExpected = 0;
 
     normalizedBaselines.forEach(b => {
       const expected = expectedGainForStat(S0, split[i], totalDays, b, gym, mod);
       expectedByBaseline[b.name] = expected;
       scoreByBaseline[b.name] = expected > 0 ? actual / expected : 0;
-      if (expected > bestExpected) bestExpected = expected;
       combinedExpected[b.name] += expected;
+      if (expected > bestExpected) bestExpected = expected;
     });
-
-    const frontier = bestExpected > 0 ? actual / bestExpected : 0;
 
     perStat.push({
       name: STAT_NAMES[i],
@@ -182,10 +179,10 @@ function calculateTornEfficiency(
       weight: split[i],
       expectedByBaseline,
       scoreByBaseline,
-      frontier
+      frontier: bestExpected > 0 ? actual / bestExpected : 0
     });
 
-    combinedActual.total += actual;
+    combinedActual += actual;
   }
 
   const combinedByBaseline = {};
@@ -193,13 +190,9 @@ function calculateTornEfficiency(
 
   normalizedBaselines.forEach(b => {
     const exp = combinedExpected[b.name];
-    combinedByBaseline[b.name] = exp > 0 ? combinedActual.total / exp : 0;
+    combinedByBaseline[b.name] = exp > 0 ? combinedActual / exp : 0;
     if (exp > bestCombinedExpected) bestCombinedExpected = exp;
   });
-
-  const frontierCombined = bestCombinedExpected > 0
-    ? combinedActual.total / bestCombinedExpected
-    : 0;
 
   return {
     inputs: {
@@ -219,6 +212,6 @@ function calculateTornEfficiency(
     split,
     perStat,
     combinedByBaseline,
-    frontierCombined
+    frontierCombined: bestCombinedExpected > 0 ? combinedActual / bestCombinedExpected : 0
   };
 }
