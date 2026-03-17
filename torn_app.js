@@ -87,6 +87,7 @@ function normalizeBaselines(baselines) {
 
   return baselines.map((b, idx) => {
     const name = (b.name || `Baseline ${idx + 1}`).trim();
+    const active = !!b.active;
     const xans = Math.max(0, Math.min(3, Number(b.xans || 0)));
     const refill = !!b.refill;
     const natural = Math.max(0, Number(b.natural || 0));
@@ -99,6 +100,7 @@ function normalizeBaselines(baselines) {
 
     return {
       name,
+      active,
       xans,
       refill,
       natural,
@@ -137,10 +139,20 @@ function calculateTornEfficiency(
 
   const normalizedBaselines = normalizeBaselines(
     baselines || [
-      { name: "Non-hop", xans: 3, refill: true, natural: 600, happy: 5000 },
-      { name: "Hop", xans: 3, refill: true, natural: 0, happy: 20000 }
+      { name: "Advanced E-Training", active: true, xans: 3, refill: true, natural: 600, happy: 5000 },
+      { name: "Medium Jump", active: true, xans: 3, refill: true, natural: 0, happy: 20000 },
+      { name: "Choco Jump", active: false, xans: 2, refill: true, natural: 100, happy: 15000 },
+      { name: "Basic E-Training", active: false, xans: 2, refill: true, natural: 400, happy: 5000 },
+      { name: "Advanced Jump", active: false, xans: 3, refill: true, natural: 0, happy: 35000 }
     ]
   );
+
+  const activeBaselines = normalizedBaselines.filter(b => b.active);
+  const inactiveBaselines = normalizedBaselines.filter(b => !b.active);
+
+  if (activeBaselines.length === 0) {
+    throw new Error("At least one baseline must be active.");
+  }
 
   const inference = inferSplitByInversion(beforeNums, afterNums, gym, mod, inferenceHappy);
   const split = inference.weights;
@@ -149,7 +161,7 @@ function calculateTornEfficiency(
   const combinedExpected = {};
   let combinedActual = 0;
 
-  normalizedBaselines.forEach(b => {
+  activeBaselines.forEach(b => {
     combinedExpected[b.name] = 0;
   });
 
@@ -164,7 +176,7 @@ function calculateTornEfficiency(
     const scoreByBaseline = {};
     let bestExpected = 0;
 
-    normalizedBaselines.forEach(b => {
+    activeBaselines.forEach(b => {
       const expected = expectedGainForStat(S0, split[i], totalDays, b, gym, mod);
       expectedByBaseline[b.name] = expected;
       scoreByBaseline[b.name] = expected > 0 ? actual / expected : 0;
@@ -187,11 +199,17 @@ function calculateTornEfficiency(
 
   const combinedByBaseline = {};
   let bestCombinedExpected = 0;
+  let frontierWinner = null;
 
-  normalizedBaselines.forEach(b => {
+  activeBaselines.forEach(b => {
     const exp = combinedExpected[b.name];
-    combinedByBaseline[b.name] = exp > 0 ? combinedActual / exp : 0;
-    if (exp > bestCombinedExpected) bestCombinedExpected = exp;
+    const score = exp > 0 ? combinedActual / exp : 0;
+    combinedByBaseline[b.name] = score;
+
+    if (exp > bestCombinedExpected) {
+      bestCombinedExpected = exp;
+      frontierWinner = b.name;
+    }
   });
 
   return {
@@ -204,6 +222,8 @@ function calculateTornEfficiency(
       inferenceHappy
     },
     baselines: normalizedBaselines,
+    activeBaselines,
+    inactiveBaselines,
     inference: {
       inferenceHappy,
       inferredEnergies: inference.inferredEnergies,
@@ -212,6 +232,7 @@ function calculateTornEfficiency(
     split,
     perStat,
     combinedByBaseline,
-    frontierCombined: bestCombinedExpected > 0 ? combinedActual / bestCombinedExpected : 0
+    frontierCombined: bestCombinedExpected > 0 ? combinedActual / bestCombinedExpected : 0,
+    frontierWinner
   };
 }
