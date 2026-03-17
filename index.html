@@ -17,6 +17,8 @@
       --danger: #ef4444;
       --danger-hover: #dc2626;
       --border: #334155;
+      --good: #22c55e;
+      --warn: #f59e0b;
     }
 
     * { box-sizing: border-box; }
@@ -35,7 +37,7 @@
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1500px;
       margin: auto;
     }
 
@@ -64,6 +66,13 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 12px;
+    }
+
+    .grid-5 {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 12px;
+      align-items: end;
     }
 
     .baseline-card {
@@ -105,6 +114,7 @@
       gap: 8px;
       margin-top: 8px;
       margin-bottom: 12px;
+      flex-wrap: wrap;
     }
 
     .checkbox-row input[type="checkbox"] {
@@ -115,6 +125,33 @@
 
     .checkbox-row label {
       margin: 0;
+    }
+
+    .baseline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .baseline-title {
+      font-weight: bold;
+      color: #dbeafe;
+      font-size: 1rem;
+    }
+
+    .active-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #152033;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--text);
     }
 
     button {
@@ -140,6 +177,15 @@
 
     .danger:hover {
       background: var(--danger-hover);
+    }
+
+    .secondary {
+      background: #475569;
+      color: white;
+    }
+
+    .secondary:hover {
+      background: #64748b;
     }
 
     .small {
@@ -187,6 +233,69 @@
       line-height: 1.4;
     }
 
+    .run-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: #020617;
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #233049;
+      padding: 8px 10px;
+      text-align: right;
+      font-size: 0.93rem;
+      white-space: nowrap;
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+
+    th {
+      color: #cbd5e1;
+      background: #07101f;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .score-good {
+      color: var(--good);
+      font-weight: 600;
+    }
+
+    .score-mid {
+      color: #eab308;
+      font-weight: 600;
+    }
+
+    .score-low {
+      color: #f87171;
+      font-weight: 600;
+    }
+
     pre {
       background: #020617;
       padding: 15px;
@@ -195,13 +304,32 @@
       white-space: pre-wrap;
       line-height: 1.35;
       margin: 0;
+      border: 1px solid var(--border);
     }
 
-    .run-row {
+    .copy-row {
       display: flex;
-      gap: 12px;
+      justify-content: space-between;
       align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
       flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #1f2937;
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 1200px) {
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 1100px) {
@@ -214,7 +342,7 @@
     }
 
     @media (max-width: 900px) {
-      .grid-4 {
+      .grid-4, .grid-5 {
         grid-template-columns: 1fr 1fr;
       }
       .grid-2 {
@@ -225,7 +353,9 @@
     @media (max-width: 640px) {
       body { padding: 12px; }
       .card { padding: 16px; }
-      .grid-4 { grid-template-columns: 1fr; }
+      .grid-4, .grid-5 {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -236,7 +366,7 @@
         <div class="card">
           <h1>TornStatsCompare</h1>
           <div class="intro-sub">
-            Paste <strong>exactly two</strong> TornStats stat-history rows, autofill the calculator, then compare your gains against one or more configurable training baselines.
+            Paste <strong>exactly two</strong> TornStats stat-history rows, autofill the calculator, then compare your gains against configurable training baselines.
           </div>
 
           <h2>Quick Paste from TornStats</h2>
@@ -251,7 +381,7 @@
           </div>
 
           <div class="small">
-            Only two rows are supported here. If you paste them in reverse order, the tool will automatically fix it.
+            Only two rows are supported. If you paste them newest-first, the tool will automatically swap them.
           </div>
         </div>
       </div>
@@ -319,29 +449,78 @@
 
       <div class="small" style="margin-top: 8px;">
         Daily energy for each baseline is calculated as: <strong>(xans × 250) + refill (150 if checked) + natural regen</strong>.
+        Active baselines are included in the results. Inactive baselines stay visible for quick toggling.
       </div>
     </div>
 
     <div class="card">
       <div class="run-row">
         <button onclick="runCalc()">Run Calculation</button>
-        <div class="small">Results are based on your configured baselines and inferred stat energy split.</div>
+        <div class="small">Results are based only on active baselines.</div>
       </div>
     </div>
 
-    <div class="card">
-      <h2>Results</h2>
-      <pre id="output">Run the calculation to see results...</pre>
+    <div class="results-grid">
+      <div class="card">
+        <h2>Structured Results</h2>
+
+        <h3>Combined Scores</h3>
+        <div class="table-wrap">
+          <table id="combinedTable">
+            <thead>
+              <tr>
+                <th>Baseline</th>
+                <th>Score</th>
+                <th>E/Day</th>
+                <th>Happy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="4">Run the calculation to see results.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="margin-top: 18px;">Per-Stat Scores</h3>
+        <div class="table-wrap">
+          <table id="perStatTable">
+            <thead>
+              <tr>
+                <th>Run the calculation to populate this table.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>No results yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="copy-row">
+          <h2 style="margin: 0;">Text Results</h2>
+          <button class="secondary" onclick="copyTextResults()">Copy Text Results</button>
+        </div>
+        <pre id="output">Run the calculation to see results...</pre>
+      </div>
     </div>
   </div>
 
-  <script src="torn_app.js?v=4"></script>
+  <script src="torn_app.js?v=5"></script>
 
   <script>
     let baselineCounter = 0;
 
     function parseStats(str) {
       return str.split(",").map(x => parseFloat(x.trim()));
+    }
+
+    function baselineXanOptions(selectedValue) {
+      const options = [0, 0.5, 1, 1.5, 2, 2.5, 3];
+      return options.map(n => {
+        const selected = Number(selectedValue) === n ? "selected" : "";
+        return `<option value="${n}" ${selected}>${n}</option>`;
+      }).join("");
     }
 
     function createBaselineCard(data = {}) {
@@ -353,7 +532,15 @@
       div.dataset.id = id;
 
       div.innerHTML = `
-        <div class="grid-4">
+        <div class="baseline-header">
+          <div class="baseline-title">${data.name || `Baseline ${id + 1}`}</div>
+          <label class="active-chip">
+            <input type="checkbox" class="baseline-active" ${data.active ? "checked" : ""} />
+            Active
+          </label>
+        </div>
+
+        <div class="grid-5">
           <div>
             <label>Name</label>
             <input class="baseline-name" value="${data.name || `Baseline ${id + 1}`}" />
@@ -361,7 +548,7 @@
           <div>
             <label>Xan/day</label>
             <select class="baseline-xans">
-              ${[0,1,2,3].map(n => `<option value="${n}" ${Number(data.xans || 0) === n ? "selected" : ""}>${n}</option>`).join("")}
+              ${baselineXanOptions(data.xans ?? 0)}
             </select>
           </div>
           <div>
@@ -372,11 +559,13 @@
             <label>Happiness</label>
             <input class="baseline-happy" value="${data.happy ?? 5000}" />
           </div>
-        </div>
-
-        <div class="checkbox-row">
-          <input type="checkbox" class="baseline-refill" ${data.refill ? "checked" : ""} />
-          <label>Use daily e refill (+150 E)</label>
+          <div>
+            <label>&nbsp;</label>
+            <div class="checkbox-row" style="margin:0; min-height: 42px;">
+              <input type="checkbox" class="baseline-refill" ${data.refill ? "checked" : ""} />
+              <label>Use refill (+150 E)</label>
+            </div>
+          </div>
         </div>
 
         <div class="top-actions">
@@ -398,7 +587,8 @@
         xans: 2,
         refill: true,
         natural: 400,
-        happy: 5000
+        happy: 5000,
+        active: true
       });
     }
 
@@ -408,19 +598,48 @@
       baselineCounter = 0;
 
       createBaselineCard({
-        name: "Non-hop",
+        name: "Advanced E-Training",
         xans: 3,
         refill: true,
         natural: 600,
-        happy: 5000
+        happy: 5000,
+        active: true
       });
 
       createBaselineCard({
-        name: "Hop",
+        name: "Medium Jump",
         xans: 3,
         refill: true,
         natural: 0,
-        happy: 20000
+        happy: 20000,
+        active: true
+      });
+
+      createBaselineCard({
+        name: "Choco Jump",
+        xans: 2,
+        refill: true,
+        natural: 100,
+        happy: 15000,
+        active: false
+      });
+
+      createBaselineCard({
+        name: "Basic E-Training",
+        xans: 2,
+        refill: true,
+        natural: 400,
+        happy: 5000,
+        active: false
+      });
+
+      createBaselineCard({
+        name: "Advanced Jump",
+        xans: 3,
+        refill: true,
+        natural: 0,
+        happy: 35000,
+        active: false
       });
     }
 
@@ -428,12 +647,13 @@
       const cards = Array.from(document.querySelectorAll(".baseline-card"));
       return cards.map(card => {
         const name = card.querySelector(".baseline-name").value.trim() || "Unnamed";
-        const xans = parseInt(card.querySelector(".baseline-xans").value, 10) || 0;
+        const active = card.querySelector(".baseline-active").checked;
+        const xans = parseFloat(card.querySelector(".baseline-xans").value) || 0;
         const refill = card.querySelector(".baseline-refill").checked;
         const natural = parseFloat(card.querySelector(".baseline-natural").value) || 0;
         const happy = parseFloat(card.querySelector(".baseline-happy").value) || 5000;
 
-        return { name, xans, refill, natural, happy };
+        return { name, active, xans, refill, natural, happy };
       });
     }
 
@@ -510,16 +730,151 @@
           second = tmp;
         }
 
-        const before = first;
-        const after = second;
-        const msDiff = after.date - before.date;
-        const hours = msDiff / (1000 * 60 * 60);
-
-        document.getElementById("before").value = before.stats.join(",");
-        document.getElementById("after").value = after.stats.join(",");
-        document.getElementById("hours").value = String(hours);
+        document.getElementById("before").value = first.stats.join(",");
+        document.getElementById("after").value = second.stats.join(",");
+        document.getElementById("hours").value = String((second.date - first.date) / (1000 * 60 * 60));
       } catch (err) {
         alert("Autofill failed: " + err.message);
+      }
+    }
+
+    function scoreClass(score) {
+      if (score >= 1.0) return "score-good";
+      if (score >= 0.8) return "score-mid";
+      return "score-low";
+    }
+
+    function renderCombinedTable(result) {
+      const tbody = document.querySelector("#combinedTable tbody");
+      tbody.innerHTML = "";
+
+      result.activeBaselines.forEach(b => {
+        const tr = document.createElement("tr");
+        const score = result.combinedByBaseline[b.name];
+        tr.innerHTML = `
+          <td>${b.name} ${b.name === result.frontierWinner ? '<span class="pill">Frontier winner</span>' : ''}</td>
+          <td class="${scoreClass(score)}">${score.toFixed(6)}</td>
+          <td>${b.ePerDay.toFixed(0)}</td>
+          <td>${b.happy.toFixed(0)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const frontierTr = document.createElement("tr");
+      frontierTr.innerHTML = `
+        <td><strong>Frontier</strong></td>
+        <td class="${scoreClass(result.frontierCombined)}"><strong>${result.frontierCombined.toFixed(6)}</strong></td>
+        <td colspan="2">Best active baseline denominator</td>
+      `;
+      tbody.appendChild(frontierTr);
+    }
+
+    function renderPerStatTable(result) {
+      const table = document.getElementById("perStatTable");
+      const activeNames = result.activeBaselines.map(b => b.name);
+
+      let thead = `
+        <thead>
+          <tr>
+            <th>Stat</th>
+            <th>Actual Gain</th>
+      `;
+      activeNames.forEach(name => {
+        thead += `<th>${name} Exp</th>`;
+      });
+      activeNames.forEach(name => {
+        thead += `<th>${name} Score</th>`;
+      });
+      thead += `<th>Frontier</th></tr></thead>`;
+
+      let tbody = `<tbody>`;
+      result.perStat.forEach(r => {
+        tbody += `<tr>`;
+        tbody += `<td>${r.name}</td>`;
+        tbody += `<td>${r.actual.toFixed(2)}</td>`;
+        activeNames.forEach(name => {
+          tbody += `<td>${r.expectedByBaseline[name].toFixed(2)}</td>`;
+        });
+        activeNames.forEach(name => {
+          const score = r.scoreByBaseline[name];
+          tbody += `<td class="${scoreClass(score)}">${score.toFixed(6)}</td>`;
+        });
+        tbody += `<td class="${scoreClass(r.frontier)}">${r.frontier.toFixed(6)}</td>`;
+        tbody += `</tr>`;
+      });
+      tbody += `</tbody>`;
+
+      table.innerHTML = thead + tbody;
+    }
+
+    function buildTextOutput(result, hours, gym, mod, inferenceHappy) {
+      const split = result.inference.split || [0, 0, 0, 0];
+      const inferredEnergies = result.inference.inferredEnergies || [0, 0, 0, 0];
+      const names = ["STR", "DEF", "SPD", "DEX"];
+
+      let text = "";
+      text += `Hours between measurements: ${hours.toFixed(6)}\n`;
+      text += `Gym dots: ${gym.toFixed(6)}\n`;
+      text += `Total modifier: ${mod.toFixed(6)}\n`;
+      text += `Inference happy: ${inferenceHappy.toFixed(6)}\n\n`;
+
+      text += "Active baselines\n";
+      result.activeBaselines.forEach(b => {
+        text += `  ${b.name}: ${b.ePerDay.toFixed(0)} E/day @ ${b.happy.toFixed(0)} happy`;
+        text += ` (xans=${b.xans}, refill=${b.refill ? "yes" : "no"}, natural=${b.natural})\n`;
+      });
+
+      text += "\nShown but inactive baselines\n";
+      result.inactiveBaselines.forEach(b => {
+        text += `  ${b.name}: ${b.ePerDay.toFixed(0)} E/day @ ${b.happy.toFixed(0)} happy`;
+        text += ` (xans=${b.xans}, refill=${b.refill ? "yes" : "no"}, natural=${b.natural})\n`;
+      });
+
+      text += "\nInferred energy split (neutral inversion)\n";
+      split.forEach((v, i) => {
+        text += `  ${names[i].padEnd(4)} ${pad((v * 100).toFixed(3) + "%", 10)}   inferred E: ${inferredEnergies[i].toFixed(3)}\n`;
+      });
+
+      text += "\nPer-stat results\n";
+      const activeNames = result.activeBaselines.map(b => b.name);
+
+      text += "Stat     Actual Gain";
+      activeNames.forEach(name => {
+        text += `   ${name} Exp`.padStart(16);
+      });
+      activeNames.forEach(name => {
+        text += `   ${name}`.padStart(14);
+      });
+      text += "   Frontier\n";
+
+      result.perStat.forEach(r => {
+        text += `${r.name.padEnd(4)} ${pad(r.actual.toFixed(2), 13)}`;
+        activeNames.forEach(name => {
+          text += `${pad(r.expectedByBaseline[name].toFixed(2), 16)}`;
+        });
+        activeNames.forEach(name => {
+          text += `${pad(r.scoreByBaseline[name].toFixed(6), 14)}`;
+        });
+        text += `${pad(r.frontier.toFixed(6), 11)}\n`;
+      });
+
+      text += "\nCombined scores\n";
+      result.activeBaselines.forEach(b => {
+        text += `  ${b.name}: ${result.combinedByBaseline[b.name].toFixed(6)}\n`;
+      });
+      text += `  Frontier: ${result.frontierCombined.toFixed(6)}\n`;
+      text += `  Frontier winner: ${result.frontierWinner}\n`;
+
+      return text;
+    }
+
+    async function copyTextResults() {
+      const text = document.getElementById("output").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("Text results copied.");
+      } catch (err) {
+        alert("Copy failed.");
       }
     }
 
@@ -535,61 +890,20 @@
       try {
         const result = calculateTornEfficiency(before, after, hours, gym, mod, baselines, inferenceHappy);
 
-        const split = result.inference.split || [0, 0, 0, 0];
-        const inferredEnergies = result.inference.inferredEnergies || [0, 0, 0, 0];
-        const names = ["STR", "DEF", "SPD", "DEX"];
+        renderCombinedTable(result);
+        renderPerStatTable(result);
 
-        let text = "";
-        text += `Hours between measurements: ${hours.toFixed(6)}\n`;
-        text += `Gym dots: ${gym.toFixed(6)}\n`;
-        text += `Total modifier: ${mod.toFixed(6)}\n`;
-        text += `Inference happy: ${inferenceHappy.toFixed(6)}\n\n`;
-
-        text += "Configured baselines\n";
-        result.baselines.forEach(b => {
-          text += `  ${b.name}: ${b.ePerDay.toFixed(0)} E/day @ ${b.happy.toFixed(0)} happy`;
-          text += ` (xans=${b.xans}, refill=${b.refill ? "yes" : "no"}, natural=${b.natural})\n`;
-        });
-
-        text += "\nInferred energy split (neutral inversion)\n";
-        split.forEach((v, i) => {
-          text += `  ${names[i].padEnd(4)} ${pad((v * 100).toFixed(3) + "%", 10)}   inferred E: ${inferredEnergies[i].toFixed(3)}\n`;
-        });
-
-        text += "\nPer-stat results\n";
-        const baselineNames = result.baselines.map(b => b.name);
-
-        text += "Stat     Actual Gain";
-        baselineNames.forEach(name => {
-          text += `   ${name} Exp`.padStart(14);
-        });
-        baselineNames.forEach(name => {
-          text += `   ${name}`.padStart(12);
-        });
-        text += "   Frontier\n";
-
-        result.perStat.forEach(r => {
-          text += `${r.name.padEnd(4)} ${pad(r.actual.toFixed(2), 13)}`;
-          result.baselines.forEach(b => {
-            text += `${pad(r.expectedByBaseline[b.name].toFixed(2), 14)}`;
-          });
-          result.baselines.forEach(b => {
-            text += `${pad(r.scoreByBaseline[b.name].toFixed(6), 12)}`;
-          });
-          text += `${pad(r.frontier.toFixed(6), 11)}\n`;
-        });
-
-        text += "\nCombined scores\n";
-        result.baselines.forEach(b => {
-          text += `  ${b.name}: ${result.combinedByBaseline[b.name].toFixed(6)}\n`;
-        });
-        text += `  Frontier: ${result.frontierCombined.toFixed(6)}\n`;
-
-        document.getElementById("output").textContent =
-          text;
+        const text = buildTextOutput(result, hours, gym, mod, inferenceHappy);
+        document.getElementById("output").textContent = text;
       } catch (err) {
         document.getElementById("output").textContent =
           "Error: " + (err && err.stack ? err.stack : err);
+
+        document.querySelector("#combinedTable tbody").innerHTML =
+          `<tr><td colspan="4">Error generating results.</td></tr>`;
+
+        document.getElementById("perStatTable").innerHTML =
+          `<thead><tr><th>Error</th></tr></thead><tbody><tr><td>Could not render table.</td></tr></tbody>`;
       }
     }
 
