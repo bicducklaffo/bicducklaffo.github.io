@@ -497,7 +497,14 @@
 
         <div class="card">
           <div class="run-row">
-            <button onclick="runCalc()">Run Calculation</button>
+            <button 
+                  onclick="runCalc()" 
+                  style="background:#22c55e;color:white;font-weight:bold;"
+                  onmouseover="this.style.background='#16a34a'"
+                  onmouseout="this.style.background='#22c55e'"
+                  >
+                  Run Calculation
+              </button>
             <div class="small">Results are based only on active baselines.</div>
           </div>
         </div>
